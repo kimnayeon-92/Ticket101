@@ -1,11 +1,10 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect  } from 'react';
 import { useAuth } from './AuthContext';
 const PreferencesContext = createContext();
 
 export const PreferencesProvider = ({ children }) => {
   const { user } = useAuth();
   const authUserId = user?.sub; // user가 null이 아닐 때만 sub 접근
-  console.log('preferenceContext userId 확인:', authUserId);
 
   const [preferences, setPreferences] = useState({
     basic: {
@@ -15,7 +14,7 @@ export const PreferencesProvider = ({ children }) => {
       user_genre: ''
     },
     artists: [],
-    movies: []
+    movies: [],
   });
   const userId = authUserId || JSON.parse(localStorage.getItem('userInfo'))?.sub;
   const updateBasicPreferences = (basicData) => {
@@ -37,17 +36,15 @@ export const PreferencesProvider = ({ children }) => {
       ...prev,
       movies: movieData
     }));
+    console.log('updateMoviePreferences 호출 후 preferences.movies:', preferences.movies);
   };
 
   const saveAllPreferences = async () => {
-    if (!userId) {
-      throw new Error('userId가 누락되었습니다.');
-    }
-
     if (!preferences.basic.gender || !preferences.basic.age || !preferences.basic.city || !preferences.basic.user_genre) {
       throw new Error('기본 정보가 누락되었습니다.');
     }
-
+    console.log('preferences artist확인:', preferences.artists);
+    console.log('preferences  movie확인:', preferences.movies);
     try {
       const artistGenreNumbers = preferences.artists
         .map((artist) => artist.artist_num)
@@ -55,6 +52,11 @@ export const PreferencesProvider = ({ children }) => {
       const movieGenreNumbers = preferences.movies
         .map((movie) => movie.movie_num)
         .join(',');
+
+
+
+      console.log('artistGenreNumbers  확인:', artistGenreNumbers);
+      console.log('movieGenreNumbers  확인:', movieGenreNumbers);
         
         const formattedData = {
           userId,
