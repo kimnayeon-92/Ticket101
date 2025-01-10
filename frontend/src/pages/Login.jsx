@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { signIn, confirmSignUp, getCurrentUser } from 'aws-amplify/auth';
+import { signIn, confirmSignUp } from 'aws-amplify/auth';
+import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
+    const { checkAuth } = useAuth();
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -36,24 +38,17 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
+
         try {
             const { isSignedIn } = await signIn({
                 username: formData.email,
                 password: formData.password
             });
-            
+
             if (isSignedIn) {
-                const user = await getCurrentUser();
-                const userData = {
-                    email: formData.email,
-                    userId: user.userId || user.username,
-                    ...user.attributes
-                };
-                
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('userData', JSON.stringify(userData));
-                window.dispatchEvent(new Event('storage'));
-                navigate('/');
+                await checkAuth();
+                navigate('/', { replace: true });
             }
         } catch (error) {
             console.error('로그인 에러:', error);
@@ -75,7 +70,7 @@ const Login = () => {
             <div className="login__inner">
                 <h2>로그인</h2>
                 {error && <p className="error-message">{error}</p>}
-                
+
                 {showVerification ? (
                     <form onSubmit={handleVerification}>
                         <div className="form-group">
@@ -85,10 +80,7 @@ const Login = () => {
                                 id="verificationCode"
                                 name="verificationCode"
                                 value={formData.verificationCode}
-                                onChange={(e) => setFormData({
-                                    ...formData,
-                                    verificationCode: e.target.value
-                                })}
+                                onChange={handleChange}
                                 placeholder="이메일로 받은 인증 코드를 입력하세요"
                                 required
                             />
@@ -127,12 +119,7 @@ const Login = () => {
                     </form>
                 )}
                 <div className="login__links">
-                    <Link 
-                        to="/signin" 
-                        onClick={() => console.log('회원가입 링크 클릭됨')}
-                    >
-                        회원가입
-                    </Link>
+                    <Link to="/signin">회원가입</Link>
                     <Link to="/forgot-password">비밀번호 찾기</Link>
                 </div>
             </div>

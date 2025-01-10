@@ -1,59 +1,30 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { getCurrentUser, signOut } from 'aws-amplify/auth'
+import { useAuth } from '../../context/AuthContext'
 
 const Header = () => {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const { isAuthenticated, checkAuth } = useAuth();
     const [searchQuery, setSearchQuery] = useState('');
     const [isVisible, setIsVisible] = useState(true);
     const [lastScrollY, setLastScrollY] = useState(0);
     const navigate = useNavigate();
 
     useEffect(() => {
-        const checkAuth = async () => {
-            try {
-                const user = await getCurrentUser();
-                if (user) {
-                    setIsLoggedIn(true);
-                    localStorage.setItem('isLoggedIn', 'true');
-                } else {
-                    setIsLoggedIn(false);
-                    localStorage.removeItem('isLoggedIn');
-                }
-            } catch (error) {
-                setIsLoggedIn(false);
-                localStorage.removeItem('isLoggedIn');
-            }
-        };
-
-        checkAuth();
-
-        const handleStorageChange = () => {
-            const isLoggedInStorage = localStorage.getItem('isLoggedIn') === 'true';
-            setIsLoggedIn(isLoggedInStorage);
-        };
-
-        window.addEventListener('storage', handleStorageChange);
-        return () => {
-            window.removeEventListener('storage', handleStorageChange);
-        };
-    }, []);
-
-    useEffect(() => {
         const controlHeader = () => {
             const currentScrollY = window.scrollY;
-            
+
             if (currentScrollY > lastScrollY) {
                 setIsVisible(false);
             } else {
                 setIsVisible(true);
             }
-            
+
             setLastScrollY(currentScrollY);
         };
 
         window.addEventListener('scroll', controlHeader);
-        
+
         return () => {
             window.removeEventListener('scroll', controlHeader);
         };
@@ -62,11 +33,8 @@ const Header = () => {
     const onLogout = async () => {
         try {
             await signOut();
-            localStorage.removeItem('isLoggedIn');
-            localStorage.removeItem('userData');
-            setIsLoggedIn(false);
-            window.dispatchEvent(new Event('storage'));
-            navigate('/');
+            await checkAuth();
+            navigate('/', { replace: true });
         } catch (error) {
             console.error('로그아웃 에러:', error);
         }
@@ -114,7 +82,7 @@ const Header = () => {
                         </div>
                         <li><Link to='/Mypage'>마이페이지</Link></li>
                         <li>
-                            {isLoggedIn ? (
+                            {isAuthenticated ? (
                                 <Link to='/' onClick={onLogout}>로그아웃</Link>
                             ) : (
                                 <Link to='/Login'>로그인</Link>

@@ -98,7 +98,7 @@ const Mypage = () => {
     return (
         <main id="mypage">
             <div className="mypage__inner">
-                <h2 className="mypage__title">MYPAGE</h2>
+                <h2 className="mypage__title">마이페이지</h2>
                 
                 <section className="mypage__section">
                     <div className="section__header">

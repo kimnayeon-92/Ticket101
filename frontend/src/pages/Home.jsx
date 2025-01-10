@@ -2,14 +2,17 @@ import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { AiFillStar, AiOutlineStar, AiOutlineLeft, AiOutlineRight } from "react-icons/ai";
 import { getCurrentUser } from '@aws-amplify/auth';
+import { useAuth } from '../context/AuthContext';
 
 const Home = () => {
+    const { isAuthenticated, loading } = useAuth();
+    console.log('로그인 상태:', isAuthenticated);
     const [favorites, setFavorites] = useState([]);
     const [performances, setPerformances] = useState({
-        recommended: [], // 추천 공연을 첫 번째로
-        musical: [], 
-        popular: [], 
-        korean: [], 
+        recommended: [],
+        musical: [],
+        popular: [],
+        korean: [],
         classical: []
     });
     const [currentSlide, setCurrentSlide] = useState({
@@ -23,36 +26,48 @@ const Home = () => {
 
     useEffect(() => {
         const fetchData = async () => {
+            console.log('fetchData 실행, 로그인 상태:', isAuthenticated);
+            if (loading) return;
+
             try {
                 const response = await fetch('http://localhost:5005/api/performances');
                 const data = await response.json();
-                
-                const allPerformances = [
-                    ...data.musical,
-                    ...data.popular,
-                    ...data.korean,
-                    ...data.classical
-                ];
-                const shuffled = [...allPerformances].sort(() => 0.5 - Math.random());
-                const recommended = shuffled.slice(0, 10);
-                
-                setPerformances({
-                    ...data,
-                    recommended
-                });
 
-                // 즐겨찾기 데이터 가져오기
-                try {
-                    const { username } = await getCurrentUser();
-                    if (username) {
+                let performancesData = {
+                    musical: data.musical,
+                    popular: data.popular,
+                    korean: data.korean,
+                    classical: data.classical,
+                    recommended: []
+                };
+
+                if (isAuthenticated) {
+                    console.log('추천 공연 추가 시도');
+                    const allPerformances = [
+                        ...data.musical,
+                        ...data.popular,
+                        ...data.korean,
+                        ...data.classical
+                    ];
+                    const shuffled = [...allPerformances].sort(() => 0.5 - Math.random());
+                    performancesData.recommended = shuffled.slice(0, 12);
+                }
+
+                setPerformances(performancesData);
+
+                if (isAuthenticated) {
+                    try {
+                        const { username } = await getCurrentUser();
                         const favoritesResponse = await fetch(`http://localhost:5004/api/favorites/${username}`);
                         if (favoritesResponse.ok) {
                             const favoritesData = await favoritesResponse.json();
                             setFavorites(favoritesData);
                         }
+                    } catch (error) {
+                        console.log('즐겨찾기 데이터 로딩 실패:', error);
                     }
-                } catch (error) {
-                    console.log('로그인 상태가 아닙니다.');
+                } else {
+                    setFavorites([]);
                 }
             } catch (error) {
                 console.error('데이터 로딩 실패:', error);
@@ -60,7 +75,7 @@ const Home = () => {
         };
 
         fetchData();
-    }, []);
+    }, [isAuthenticated, loading]);
 
     const handleFavorite = async (e, show) => {
         e.preventDefault();
@@ -109,14 +124,15 @@ const Home = () => {
     };
 
     const moveSlide = (genre, direction) => {
-        const totalSlides = performances[genre].length;
-        const maxSlides = Math.ceil(totalSlides / 5) - 1;
-        
+        const itemsPerPage = 6;  // 한 슬라이드 화면에 6개의 공연이 보임
+        const totalSlides = Math.ceil(performances[genre].length / itemsPerPage);
+        // 예: 30개 공연이면 totalSlides는 5가 됨 (30/6 = 5)
+
         setCurrentSlide(prev => ({
             ...prev,
-            [genre]: direction === 'next' 
-                ? Math.min(prev[genre] + 1, maxSlides)
-                : Math.max(prev[genre] - 1, 0)
+            [genre]: direction === 'next'
+                ? Math.min(prev[genre] + 1, totalSlides - 1)  // 다음 6개로 이동
+                : Math.max(prev[genre] - 1, 0)  // 이전 6개로 이동
         }));
     };
 
@@ -128,37 +144,41 @@ const Home = () => {
         classical: "서양음악(클래식)"
     };
 
-    // 장르 순서를 정의
-    const genreOrder = [
-        'recommended',
-        'musical',
-        'popular',
-        'korean',
-        'classical'
-    ];
+    // 장르 순서를 로그인 상태에 따라 동적으로 설정
+    const genreOrder = isAuthenticated
+        ? ['recommended', 'musical', 'popular', 'korean', 'classical']
+        : ['musical', 'popular', 'korean', 'classical'];
+
+    // 렌더링 시 장르 순서 로그
+    console.log('현재 장르 순서:', genreOrder);
 
     return (
         <main id="main" role="main">
             {genreOrder.map(genre => (
                 <section key={genre}>
-                    <h2 className="section__title">{genreNames[genre]}</h2>
+                    <h2 className="section__title">
+                        {genreNames[genre]}
+                        {genre === 'recommended' && isAuthenticated }
+                    </h2>
                     <div className="show__list-container">
-                        <button 
-                            className="slide-btn prev" 
+                        <button
+                            className="slide-btn prev"
                             onClick={() => moveSlide(genre, 'prev')}
                             disabled={currentSlide[genre] === 0}
                         >
                             <AiOutlineLeft />
                         </button>
                         <div className="show__list" style={{
-                            transform: `translateX(-${currentSlide[genre] * 100}%)`
+                            transform: `translateX(calc(-${currentSlide[genre] * (100 / 6 * 6)}%))`
                         }}>
-                            {performances[genre].map(show => (
-                                <div key={show.performance_id} className="show__item">
+                            {performances[genre].map((show, index) => (
+                                <div key={show.performance_id}
+                                     className="show__item"
+                                >
                                     <Link to={`/detail/${show.performance_id}`}>
                                         <div className="show__image-container">
                                             <img src={show.image} alt={show.title} />
-                                            <button 
+                                            <button
                                                 className="favorite-btn"
                                                 onClick={(e) => handleFavorite(e, show)}
                                             >
@@ -176,10 +196,10 @@ const Home = () => {
                                 </div>
                             ))}
                         </div>
-                        <button 
-                            className="slide-btn next" 
+                        <button
+                            className="slide-btn next"
                             onClick={() => moveSlide(genre, 'next')}
-                            disabled={currentSlide[genre] >= Math.ceil(performances[genre].length / 5) - 1}
+                            disabled={currentSlide[genre] >= Math.ceil(performances[genre].length / 6) - 1}
                         >
                             <AiOutlineRight />
                         </button>
