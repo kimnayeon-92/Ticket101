@@ -6,10 +6,10 @@ import { useAuth } from '../context/AuthContext';
 const PreferencesArtists = () => {
   const navigate = useNavigate();
 
-  const { user } = useAuth();
-  const userId = user?.sub; // user가 null이 아닌 경우에만 sub를 가져옴
-  console.log('PreferencesArtists에서 user 확인:', user);
-  console.log('PreferencesArtists에서 userId 확인:', userId);
+  // const { user } = useAuth();
+  // const userId = user?.sub; // user가 null이 아닌 경우에만 sub를 가져옴
+  // console.log('PreferencesArtists에서 user 확인:', user);
+  // console.log('PreferencesArtists에서 userId 확인:', userId);
 
 
   const { updateArtistPreferences } = usePreferences();
@@ -19,7 +19,7 @@ const PreferencesArtists = () => {
   const [error, setError] = useState(null);
 
   const searchArtists = async (query) => {
-    console.log('userId 확인:', userId);
+    // console.log('userId 확인:', userId);
     try {
       // 검색어 유효성 검사
       if (!query || query.length < 2) {

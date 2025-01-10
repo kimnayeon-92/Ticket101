@@ -12,14 +12,27 @@ const Mypage = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchData = async () => {
+        const checkAuthAndFetchData = async () => {
+            try {
+                // 먼저 인증 상태 확인
+                const token = sessionStorage.getItem('idToken');
+                console.log('현재 토큰: ', token);
+                
+                if (!token) {
+                    throw new Error('토큰이 없습니다.'); // 명시적으로 에러 발생
+                }
+    
+                // 인증된 사용자에 대한 추가 작업
+                // await getCurrentUser();
+            } catch (error) {
+                // 인증되지 않은 경우 로그인 페이지로 리다이렉트
+                console.error('인증되지 않은 사용자: ', error.message);
+                navigate('/login', { replace: true });
+            }
+
+            // 인증된 경우에만 즐겨찾기 데이터 가져오기
             try {
                 const { username } = await getCurrentUser();
-                if (!username) {
-                    navigate('/login');
-                    return;
-                }
-
                 const response = await fetch(`http://localhost:5004/api/favorites/${username}`);
                 
                 if (!response.ok) {
@@ -27,17 +40,15 @@ const Mypage = () => {
                 }
 
                 const data = await response.json();
-                console.log('Fetched favorites:', data);
                 setFavorites(data);
             } catch (error) {
                 console.error('즐겨찾기 로딩 중 에러:', error);
-                navigate('/login');
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchData();
+        checkAuthAndFetchData();
     }, [navigate]);
 
     const moveSlide = (direction) => {

@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 // import { getCurrentUser } from 'aws-amplify/auth';
 import { usePreferences } from '../context/PreferencesContext';
 import { useAuth } from '../context/AuthContext';
+import { getCurrentUser } from 'aws-amplify/auth';
+
+
 
 const PreferencesBasic = () => {
 
@@ -14,10 +17,10 @@ const PreferencesBasic = () => {
     user_genre: ''
   });
   
-  const { user } = useAuth();
-  const userId = user?.sub; // user가 null이 아닌 경우에만 sub를 가져옴
-  console.log('PreferencesArtists에서 user 확인:', user);
-  console.log('PreferencesArtists에서 userId 확인:', userId);
+  // const { user } = useAuth();
+  // const userId = user?.sub; // user가 null이 아닌 경우에만 sub를 가져옴
+  const { user } = getCurrentUser()
+  const userId = user?.sub; // user가 null이 아닐 때만 sub 접근
 
   const navigate = useNavigate();
   const { updateBasicPreferences } = usePreferences();

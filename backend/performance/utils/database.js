@@ -14,11 +14,11 @@ class Database {
       TableName: this.tableName
     };
 
-    console.log('getAllPerformances 요청:', params);
+    // console.log('getAllPerformances 요청:', params);
 
     try {
       const result = await dynamoClient.scan(params).promise();
-      console.log('getAllPerformances 결과:', result);
+      // console.log('getAllPerformances 결과:', result);
       return result.Items || [];
     } catch (error) {
       console.error('getAllPerformances 에러:', error);
@@ -35,11 +35,11 @@ class Database {
       }
     };
 
-    console.log('getPerformanceById 요청:', params);
+    // console.log('getPerformanceById 요청:', params);
 
     try {
       const result = await dynamoClient.get(params).promise();
-      console.log('getPerformanceById 결과:', result);
+      // console.log('getPerformanceById 결과:', result);
       return result.Item;
     } catch (error) {
       console.error('getPerformanceById 에러:', error);

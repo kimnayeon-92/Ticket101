@@ -5,8 +5,12 @@ import { getCurrentUser } from '@aws-amplify/auth';
 import { useAuth } from '../context/AuthContext';
 
 const Home = () => {
-    const { isAuthenticated, loading } = useAuth();
+    const { user, loading } = useAuth();
+    const isAuthenticated = localStorage.getItem('isLoggedIn') === 'true';
+    
+
     console.log('로그인 상태:', isAuthenticated);
+    
     const [favorites, setFavorites] = useState([]);
     const [performances, setPerformances] = useState({
         recommended: [],

@@ -110,8 +110,6 @@ const Signin = () => {
             
             // localStorage에 사용자 정보 저장
             localStorage.setItem('userInfo', JSON.stringify(userInfo));
-
-
             
             // 선호도 페이지로 이동
             setTimeout(() => {

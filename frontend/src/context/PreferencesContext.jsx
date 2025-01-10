@@ -1,9 +1,12 @@
 import React, { createContext, useContext, useState, useEffect  } from 'react';
 import { useAuth } from './AuthContext';
+import { getCurrentUser } from 'aws-amplify/auth';
+
 const PreferencesContext = createContext();
 
 export const PreferencesProvider = ({ children }) => {
-  const { user } = useAuth();
+  // const { user } = useAuth();
+  const { user } = getCurrentUser()
   const authUserId = user?.sub; // user가 null이 아닐 때만 sub 접근
 
   const [preferences, setPreferences] = useState({

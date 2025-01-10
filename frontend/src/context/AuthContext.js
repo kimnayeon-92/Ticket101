@@ -1,58 +1,103 @@
 import { createContext, useState, useContext, useEffect } from 'react';
-import { getCurrentUser } from 'aws-amplify/auth';
+import { Hub } from '@aws-amplify/core';
+import { 
+    getCurrentUser,
+    fetchUserAttributes,
+    signOut,
+    signIn,
+    signUp
+} from '@aws-amplify/auth';
+
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // 인증 상태 체크 함수
-    const checkAuth = async () => {
+    useEffect(() => {
+        checkUser();
+
+        const unsubscribe = Hub.listen('auth', ({ payload }) => {
+            switch (payload.event) {
+                case 'signIn':
+                    checkUser();
+                    break;
+                case 'signOut':
+                    handleSignOut();
+                    break;
+                default:
+                    break;
+            }
+        });
+
+        return () => {
+            unsubscribe();
+        };
+    }, []);
+
+    const checkUser = async () => {
         try {
-            const user = await getCurrentUser();
-            const isLoggedIn = !!user;
-            setIsAuthenticated(isLoggedIn);
-            localStorage.setItem('isLoggedIn', isLoggedIn.toString());
-            console.log('인증 상태 업데이트:', isLoggedIn);
+            const idToken = sessionStorage.getItem('idToken');
+            if (!idToken) {
+                setUser(null);
+                return;
+            }
+
+            const currentUser = await getCurrentUser();
+            const userAttributes = await fetchUserAttributes();
+            setUser(userAttributes);
         } catch (error) {
-            console.log('인증 확인 에러:', error);
-            setIsAuthenticated(false);
-            localStorage.removeItem('isLoggedIn');
+            console.error('User check failed:', error);
+            setUser(null);
         } finally {
             setLoading(false);
         }
     };
 
-    // 초기 로드 시 인증 상태 체크
-    useEffect(() => {
-        checkAuth();
-    }, []);
-
-    // 다른 탭/창의 로그인 상태 변경 감지
-    useEffect(() => {
-        const handleStorageChange = (e) => {
-            if (e.key === 'isLoggedIn') {
-                setIsAuthenticated(e.newValue === 'true');
-            }
-        };
-
-        window.addEventListener('storage', handleStorageChange);
-        return () => window.removeEventListener('storage', handleStorageChange);
-    }, []);
-
-    const value = {
-        isAuthenticated,
-        loading,
-        checkAuth
+    const handleSignOut = () => {
+        setUser(null);
+        sessionStorage.clear(); // 세션 초기화
     };
 
-    if (loading) {
-        return <div>Loading...</div>;
-    }
+    const login = async (username, password) => {
+        try {
+            const user = await signIn({ username, password });
+            sessionStorage.setItem('idToken', user.signInUserSession.idToken.jwtToken); // 세션 스토리지에 토큰 저장
+            setUser(user);
+        } catch (error) {
+            console.error('Login failed:', error);
+            throw error;
+        }
+    };
+
+    const logout = async () => {
+        try {
+            await signOut();
+            handleSignOut();
+        } catch (error) {
+            console.error('Logout failed:', error);
+            throw error;
+        }
+    };
+
+    const register = async (username, password, email) => {
+        try {
+            await signUp({
+                username,
+                password,
+                attributes: {
+                    email
+                }
+            });
+        } catch (error) {
+            console.error('Registration failed:', error);
+            throw error;
+        }
+    };
 
     return (
-        <AuthContext.Provider value={value}>
+        <AuthContext.Provider value={{ user, login, logout, register, loading }}>
             {children}
         </AuthContext.Provider>
     );

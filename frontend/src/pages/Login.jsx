@@ -1,125 +1,108 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { signIn, confirmSignUp } from 'aws-amplify/auth';
-import { useAuth } from '../context/AuthContext';
+import { CognitoUserPool, CognitoUser, AuthenticationDetails } from 'amazon-cognito-identity-js';
+
+const poolData = {
+    UserPoolId: process.env.REACT_APP_AWS_USER_POOLS_ID || 'default-user-pool-id',
+    ClientId: process.env.REACT_APP_AWS_USER_POOLS_WEB_CLIENT_ID || 'default-client-id',
+};
+
+const userPool = new CognitoUserPool(poolData);
 
 const Login = () => {
-    const { checkAuth } = useAuth();
-    const [formData, setFormData] = useState({
-        email: '',
-        password: '',
-        verificationCode: ''
-    });
-    const [showVerification, setShowVerification] = useState(false);
+    const [formData, setFormData] = useState({ email: '', password: '' });
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
+    // 브라우저 닫힐 때 세션 스토리지 초기화
+    useEffect(() => {
+        const handleBeforeUnload = () => {
+            sessionStorage.clear();
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, []);
+
     const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
+        const { name, value } = e.target;
+        setFormData((prevData) => ({ ...prevData, [name]: value }));
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        if (!formData.email || !formData.password) {
+            setError('이메일과 비밀번호를 입력하세요.');
+            return;
+        }
+
+        const authenticationDetails = new AuthenticationDetails({
+            Username: formData.email,
+            Password: formData.password,
         });
-    };
 
-    const handleVerification = async (e) => {
-        e.preventDefault();
-        try {
-            await confirmSignUp({
-                username: formData.email,
-                confirmationCode: formData.verificationCode
-            });
-            alert('이메일 인증이 완료되었습니다. 로그인해주세요.');
-            setShowVerification(false);
-        } catch (error) {
-            console.error('인증 에러:', error);
-            setError('인증 코드가 올바르지 않습니다.');
-        }
-    };
+        const cognitoUser = new CognitoUser({
+            Username: formData.email,
+            Pool: userPool,
+        });
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
+        cognitoUser.authenticateUser(authenticationDetails, {
+            onSuccess: (result) => {
+                const idToken = result.getIdToken().getJwtToken();
+                console.log('로그인 성공:', idToken);
 
-        try {
-            const { isSignedIn } = await signIn({
-                username: formData.email,
-                password: formData.password
-            });
+                sessionStorage.setItem('idToken', idToken);
+                sessionStorage.setItem('email', formData.email);
 
-            if (isSignedIn) {
-                await checkAuth();
-                navigate('/', { replace: true });
-            }
-        } catch (error) {
-            console.error('로그인 에러:', error);
-            if (error.code === 'UserNotConfirmedException') {
-                setShowVerification(true);
-                setError('이메일 인증이 필요합니다. 인증 코드를 입력해주세요.');
-            } else if (error.code === 'NotAuthorizedException') {
-                setError('이메일 또는 비밀번호가 올바르지 않습니다.');
-            } else if (error.code === 'UserNotFoundException') {
-                setError('등록되지 않은 이메일입니다.');
-            } else {
-                setError(`로그인 실패: ${error.message}`);
-            }
-        }
+                navigate('/');
+            },
+            onFailure: (err) => {
+                console.error('로그인 실패:', err);
+                setError(err.message || '로그인에 실패했습니다.');
+            },
+        });
     };
 
     return (
         <div className="login">
             <div className="login__inner">
                 <h2>로그인</h2>
-                {error && <p className="error-message">{error}</p>}
+                {error && <p className="error-message" style={{ color: 'red' }}>{error}</p>}
 
-                {showVerification ? (
-                    <form onSubmit={handleVerification}>
-                        <div className="form-group">
-                            <label htmlFor="verificationCode">인증 코드</label>
-                            <input
-                                type="text"
-                                id="verificationCode"
-                                name="verificationCode"
-                                value={formData.verificationCode}
-                                onChange={handleChange}
-                                placeholder="이메일로 받은 인증 코드를 입력하세요"
-                                required
-                            />
-                        </div>
-                        <button type="submit" className="login__button">
-                            인증하기
-                        </button>
-                    </form>
-                ) : (
-                    <form onSubmit={handleSubmit}>
-                        <div className="form-group">
-                            <label htmlFor="email">이메일</label>
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleChange}
-                                placeholder="이메일을 입력하세요"
-                                required
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="password">비밀번호</label>
-                            <input
-                                type="password"
-                                id="password"
-                                name="password"
-                                value={formData.password}
-                                onChange={handleChange}
-                                placeholder="비밀번호를 입력하세요"
-                                required
-                            />
-                        </div>
-                        <button type="submit">로그인</button>
-                    </form>
-                )}
+                <form onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label htmlFor="email">이메일</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            placeholder="이메일을 입력하세요"
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="password">비밀번호</label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            placeholder="비밀번호를 입력하세요"
+                            required
+                        />
+                    </div>
+                    <button type="submit" className="login__button">로그인</button>
+                </form>
+
                 <div className="login__links">
-                    <Link to="/signin">회원가입</Link>
+                    <Link to="/signup">회원가입</Link>
                     <Link to="/forgot-password">비밀번호 찾기</Link>
                 </div>
             </div>

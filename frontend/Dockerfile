@@ -9,7 +9,8 @@ COPY package*.json ./
 RUN npm install --legacy-peer-deps
 RUN npm install -g @aws-amplify/cli
 RUN npm install ajv ajv-keywords
-# RUN npm install ajv ajv-keywords
+RUN npm install amazon-cognito-identity-js
+RUN npm install ajv ajv-keywords
 
 COPY . .
 

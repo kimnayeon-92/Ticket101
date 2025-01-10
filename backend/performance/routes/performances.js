@@ -9,7 +9,7 @@ router.get('/', async (req, res) => {
         console.log('공연 정보 조회 시작');
         
         const today = new Date().toISOString().split('T')[0];
-        console.log('현재 날짜:', today);
+        // console.log('현재 날짜:', today);
         
         const performances = await db.getAllPerformances();
 
@@ -25,7 +25,7 @@ router.get('/', async (req, res) => {
                 return diffA - diffB;
             });
 
-        console.log('필터링 후 공연 수:', filteredPerformances.length);
+        // console.log('필터링 후 공연 수:', filteredPerformances.length);
 
         // 장르별로 분류
         const categorizedResult = {

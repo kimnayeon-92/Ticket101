@@ -5,8 +5,6 @@ import { usePreferences } from '../context/PreferencesContext';
 
 const PreferencesMovies = () => {
   const navigate = useNavigate();
-
-  const { user } = useAuth();
   const { checkAuth } = useAuth();
 
   const { updateMoviePreferences, saveAllPreferences, preferences } = usePreferences();
