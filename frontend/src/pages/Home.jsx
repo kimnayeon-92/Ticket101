@@ -6,9 +6,7 @@ import { useAuth } from '../context/AuthContext';
 
 const Home = () => {
     const { user, loading } = useAuth();
-    const isAuthenticated = localStorage.getItem('isLoggedIn') === 'true';
-    
-
+    const isAuthenticated = !!(user && user.sub);
     console.log('로그인 상태:', isAuthenticated);
     
     const [favorites, setFavorites] = useState([]);
