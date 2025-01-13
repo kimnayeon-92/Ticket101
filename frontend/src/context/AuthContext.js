@@ -1,4 +1,5 @@
 import { createContext, useState, useContext, useEffect } from 'react';
+import { jwtDecode } from 'jwt-decode';
 import { Hub } from '@aws-amplify/core';
 import { 
     getCurrentUser,
@@ -35,16 +36,27 @@ export const AuthProvider = ({ children }) => {
             unsubscribe();
         };
     }, []);
+    
+    const isTokenExpired = (token) => {
+        try {
+            const decodedToken = jwtDecode(token);
+            const currentTime = Math.floor(Date.now() / 1000); // 현재 시간 (초 단위)
+            return decodedToken.exp < currentTime; // 만료되었으면 true 반환
+        } catch (error) {
+            console.error('JWT 디코딩 실패:', error);
+            return true; // 디코딩 실패 시 만료된 것으로 간주
+        }
+    };
 
     const checkUser = async () => {
         try {
             const idToken = sessionStorage.getItem('idToken');
-            if (!idToken) {
-                setUser(null);
+            if (!idToken || isTokenExpired(idToken)) {
+                console.log('토큰이 만료되었습니다. 세션을 초기화합니다.');
+                handleSignOut(); // 토큰 만료 시 로그아웃 처리
                 return;
             }
 
-            const currentUser = await getCurrentUser();
             const userAttributes = await fetchUserAttributes();
             setUser(userAttributes);
         } catch (error) {
@@ -63,7 +75,14 @@ export const AuthProvider = ({ children }) => {
     const login = async (username, password) => {
         try {
             const user = await signIn({ username, password });
-            sessionStorage.setItem('idToken', user.signInUserSession.idToken.jwtToken); // 세션 스토리지에 토큰 저장
+            const idToken = user.signInUserSession.idToken.jwtToken;
+
+            if (isTokenExpired(idToken)) {
+                console.error('받은 토큰이 이미 만료되었습니다.');
+                throw new Error('로그인 실패: 토큰이 만료되었습니다.');
+            }
+
+            sessionStorage.setItem('idToken', idToken); // 세션 스토리지에 토큰 저장
             setUser(user);
         } catch (error) {
             console.error('Login failed:', error);
@@ -95,9 +114,9 @@ export const AuthProvider = ({ children }) => {
             throw error;
         }
     };
-
+    
     return (
-        <AuthContext.Provider value={{ user, login, logout, register, loading }}>
+        <AuthContext.Provider value={{ user, login, logout, register, loading, setUser }}>
             {children}
         </AuthContext.Provider>
     );

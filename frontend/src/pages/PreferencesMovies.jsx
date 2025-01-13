@@ -5,9 +5,11 @@ import { usePreferences } from '../context/PreferencesContext';
 
 const PreferencesMovies = () => {
   const navigate = useNavigate();
-  const { checkAuth } = useAuth();
+  // const { checkAuth } = useAuth();
 
   const { updateMoviePreferences, saveAllPreferences, preferences } = usePreferences();
+  console.log('usePreferences 반환 값:', { updateMoviePreferences, saveAllPreferences });
+
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [selectedMovies, setSelectedMovies] = useState([]);
@@ -101,6 +103,8 @@ const PreferencesMovies = () => {
 
       // Context에 영화 데이터 저장
       updateMoviePreferences(moviePreferences);
+
+      console.log('usePreferences 반환 값:', { updateMoviePreferences, saveAllPreferences });
       // await delay(500);
       // 모든 데이터 한 번에 저장
       console.log('최종 제출 전 movie 장르:', moviePreferences);
@@ -110,10 +114,10 @@ const PreferencesMovies = () => {
       // }, 500);
 
 
-      await checkAuth();
+      // await checkAuth();
       // 로그인 페이지로 이동
       setTimeout(() => {
-        navigate('/');
+        navigate('/login');
       }, 100);
 
     } catch (error) {
@@ -143,6 +147,7 @@ const PreferencesMovies = () => {
           type="text"
           placeholder="영화를 검색해주세요"
           className="search-input"
+          
           value={searchQuery}
           onChange={handleSearchChange}
         />

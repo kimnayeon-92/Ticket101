@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { fetchUserAttributes, signOut, getCurrentUser } from '@aws-amplify/auth';
+import { signOut, getCurrentUser } from '@aws-amplify/auth';
+import { jwtDecode } from 'jwt-decode'; // JWT 디코딩 라이브러리
 
 const Header = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -12,17 +13,28 @@ const Header = () => {
     useEffect(() => {
         checkAuth();
     }, []);
+    
+    const isTokenExpired = (token) => {
+        try {
+            const decodedToken = jwtDecode(token);
+            const currentTime = Math.floor(Date.now() / 1000); // 현재 시간 (초 단위)
+            return decodedToken.exp < currentTime; // 만료 여부 반환
+        } catch (error) {
+            console.error('토큰 디코딩 실패:', error);
+            return true; // 디코딩 실패 시 만료된 것으로 간주
+        }
+    };
 
     const checkAuth = async () => {
         try {
             // 세션 스토리지 확인
             const idToken = sessionStorage.getItem('idToken');
-            if (!idToken) {
-                console.log('세션 스토리지가 비어 있으므로 로그아웃 처리');
-                setIsAuthenticated(false);
+            if (!idToken || isTokenExpired(idToken)) {
+                console.log('세션 스토리지가 없거나 토큰이 만료되었습니다.');
+                handleLogout(); // 만료된 경우 로그아웃 처리
                 return;
             }
-
+            
             // Amplify 인증 확인
             await getCurrentUser();
             setIsAuthenticated(true);
@@ -31,6 +43,15 @@ const Header = () => {
             setIsAuthenticated(false);
         }
     };
+    
+    useEffect(() => {
+        if (isAuthenticated) {
+            console.log('사용자가 로그인 상태입니다. UI를 업데이트합니다.');
+            // 인증 상태가 변경된 후 추가 작업을 여기에 작성
+        } else {
+            console.log('사용자가 로그아웃 상태입니다.');
+        }
+    }, [isAuthenticated]); // isAuthenticated 상태 변경을 감지
 
     useEffect(() => {
         const controlHeader = () => {

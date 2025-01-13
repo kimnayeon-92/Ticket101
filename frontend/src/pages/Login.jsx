@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { CognitoUserPool, CognitoUser, AuthenticationDetails } from 'amazon-cognito-identity-js';
+import { jwtDecode } from 'jwt-decode';
+import { useAuth } from '../context/AuthContext';
+
 
 const poolData = {
     UserPoolId: process.env.REACT_APP_AWS_USER_POOLS_ID || 'default-user-pool-id',
@@ -10,6 +13,7 @@ const poolData = {
 const userPool = new CognitoUserPool(poolData);
 
 const Login = () => {
+    const { login } = useAuth();
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [error, setError] = useState('');
     const navigate = useNavigate();
@@ -26,6 +30,18 @@ const Login = () => {
             window.removeEventListener('beforeunload', handleBeforeUnload);
         };
     }, []);
+
+
+    const isTokenExpired = (token) => {
+        try {
+            const decodedToken = jwtDecode(token);
+            const currentTime = Math.floor(Date.now() / 1000); // 현재 시간 (초 단위)
+            return decodedToken.exp < currentTime; // 만료 여부 반환
+        } catch (error) {
+            console.error('토큰 디코딩 실패:', error);
+            return true; // 디코딩 실패 시 만료된 것으로 간주
+        }
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -53,12 +69,21 @@ const Login = () => {
         cognitoUser.authenticateUser(authenticationDetails, {
             onSuccess: (result) => {
                 const idToken = result.getIdToken().getJwtToken();
-                console.log('로그인 성공:', idToken);
+                
+                if (isTokenExpired(idToken)) {
+                    console.error('로그인 실패: 받은 토큰이 만료되었습니다.');
+                    setError('로그인 실패: 받은 토큰이 만료되었습니다.');
+                    return;
+                }
 
+                console.log('로그인 성공:', idToken);
                 sessionStorage.setItem('idToken', idToken);
                 sessionStorage.setItem('email', formData.email);
 
-                navigate('/');
+                login({ email: formData.email, idToken });
+
+                navigate('/', { replace: true });
+
             },
             onFailure: (err) => {
                 console.error('로그인 실패:', err);
@@ -102,7 +127,7 @@ const Login = () => {
                 </form>
 
                 <div className="login__links">
-                    <Link to="/signup">회원가입</Link>
+                    <Link to="/signin">회원가입</Link>
                     <Link to="/forgot-password">비밀번호 찾기</Link>
                 </div>
             </div>
