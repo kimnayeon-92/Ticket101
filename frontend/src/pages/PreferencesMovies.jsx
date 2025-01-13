@@ -119,6 +119,7 @@ const PreferencesMovies = () => {
       setTimeout(() => {
         navigate('/login');
       }, 100);
+      
 
     } catch (error) {
       console.error('선호도 저장 에러:', error);

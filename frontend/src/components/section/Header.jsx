@@ -9,7 +9,7 @@ const Header = () => {
     const [isVisible, setIsVisible] = useState(true);
     const [lastScrollY, setLastScrollY] = useState(0);
     const navigate = useNavigate();
-
+    
     useEffect(() => {
         checkAuth();
     }, []);
@@ -31,7 +31,11 @@ const Header = () => {
             const idToken = sessionStorage.getItem('idToken');
             if (!idToken || isTokenExpired(idToken)) {
                 console.log('세션 스토리지가 없거나 토큰이 만료되었습니다.');
-                handleLogout(); // 만료된 경우 로그아웃 처리
+                
+                if (!sessionStorage.getItem('logoutTriggered')) {
+                    sessionStorage.setItem('logoutTriggered', 'true'); // 로그아웃 플래그 설정
+                    handleLogout(); // 만료된 경우 로그아웃 처리
+                }
                 return;
             }
             
@@ -44,14 +48,14 @@ const Header = () => {
         }
     };
     
-    useEffect(() => {
-        if (isAuthenticated) {
-            console.log('사용자가 로그인 상태입니다. UI를 업데이트합니다.');
-            // 인증 상태가 변경된 후 추가 작업을 여기에 작성
-        } else {
-            console.log('사용자가 로그아웃 상태입니다.');
-        }
-    }, [isAuthenticated]); // isAuthenticated 상태 변경을 감지
+    // useEffect(() => {
+    //     if (isAuthenticated) {
+    //         console.log('사용자가 로그인 상태입니다. UI를 업데이트합니다.');
+    //         // 인증 상태가 변경된 후 추가 작업을 여기에 작성
+    //     } else {
+    //         console.log('사용자가 로그아웃 상태입니다.');
+    //     }
+    // }, [isAuthenticated]); // isAuthenticated 상태 변경을 감지
 
     useEffect(() => {
         const controlHeader = () => {
@@ -76,9 +80,13 @@ const Header = () => {
     const handleLogout = async () => {
         try {
             await signOut();
-            sessionStorage.clear(); // 세션 스토리지 초기화
+            sessionStorage.clear(); // 세션 스토리지 초기화\
+            sessionStorage.setItem('logoutTriggered', 'false'); // 로그아웃 플래그 초기화
             setIsAuthenticated(false);
+            // window.location.href = '/';
             navigate('/');
+            window.location.reload();
+            
         } catch (error) {
             console.error('로그아웃 실패:', error);
         }

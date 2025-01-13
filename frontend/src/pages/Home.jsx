@@ -5,6 +5,7 @@ import { getCurrentUser } from '@aws-amplify/auth';
 import { useAuth } from '../context/AuthContext';
 
 const Home = () => {
+
     const { user, loading } = useAuth();
     const isAuthenticated = !!(user && user.sub);
     console.log('로그인 상태:', isAuthenticated);

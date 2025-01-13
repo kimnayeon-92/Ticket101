@@ -83,6 +83,9 @@ const Login = () => {
                 login({ email: formData.email, idToken });
 
                 navigate('/', { replace: true });
+                setTimeout(() => {
+                    window.location.reload(); // 딜레이 후 새로고침
+                  }, 100); // 100ms 딜레이
 
             },
             onFailure: (err) => {
