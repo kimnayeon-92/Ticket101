@@ -117,7 +117,7 @@ const PreferencesMovies = () => {
       // await checkAuth();
       // 로그인 페이지로 이동
       setTimeout(() => {
-        navigate('/login');
+        navigate('/preferences/end');
       }, 100);
       
 

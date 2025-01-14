@@ -96,3 +96,29 @@
         }
     }
 }
+
+.loading-wrapper {
+    text-align: center;
+    margin-top: 40px;
+
+    p {
+        color: var(--white200);
+        margin-top: 20px;
+        font-size: 14px;
+    }
+
+    .loading-spinner {
+        margin: 0 auto;
+        width: 40px;
+        height: 40px;
+        border: 4px solid var(--black300);
+        border-top: 4px solid var(--ticket300);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

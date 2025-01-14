@@ -9,7 +9,7 @@ router.get('/', async (req, res) => {
         console.log('공연 정보 조회 시작');
         
         const today = new Date().toISOString().split('T')[0];
-        // console.log('현재 날짜:', today);
+        const limit = 30;  // 각 장르별 최대 공연 수
         
         const performances = await db.getAllPerformances();
 
@@ -25,14 +25,20 @@ router.get('/', async (req, res) => {
                 return diffA - diffB;
             });
 
-        // console.log('필터링 후 공연 수:', filteredPerformances.length);
-
-        // 장르별로 분류
+        // 장르별로 분류하고 각각 30개로 제한
         const categorizedResult = {
-            musical: filteredPerformances.filter(p => p.genre === "뮤지컬"),
-            popular: filteredPerformances.filter(p => p.genre === "대중음악"),
-            korean: filteredPerformances.filter(p => p.genre === "한국음악(국악)"),
-            classical: filteredPerformances.filter(p => p.genre === "서양음악(클래식)")
+            musical: filteredPerformances
+                .filter(p => p.genre === "뮤지컬")
+                .slice(0, limit),
+            popular: filteredPerformances
+                .filter(p => p.genre === "대중음악")
+                .slice(0, limit),
+            korean: filteredPerformances
+                .filter(p => p.genre === "한국음악(국악)")
+                .slice(0, limit),
+            classical: filteredPerformances
+                .filter(p => p.genre === "서양음악(클래식)")
+                .slice(0, limit)
         };
 
         res.json(categorizedResult);
