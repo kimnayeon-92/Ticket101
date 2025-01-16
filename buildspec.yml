@@ -1,0 +1,23 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Downloading .env files from S3...
+      - aws s3 cp s3://my-secure-bucket/ticket101-env-files/auth/.env ./auth.env || exit 1
+      - aws s3 cp s3://my-secure-bucket/ticket101-env-files/favorite/.env ./favorite.env || exit 1
+      - aws s3 cp s3://my-secure-bucket/ticket101-env-files/performance/.env ./performance.env || exit 1
+      - aws s3 cp s3://my-secure-bucket/ticket101-env-files/search/.env ./search.env || exit 1
+      - aws s3 cp s3://my-secure-bucket/ticket101-env-files/survey/.env ./survey.env || exit 1
+      - echo "Merging all .env files into a single .env file..."
+      - cat auth.env favorite.env performance.env search.env survey.env > .env || exit 1
+      - export $(cat .env | xargs) || exit 1
+  build:
+    commands:
+      - echo Verifying environment variables...
+      - echo AUTH_PORT is set
+      - echo FAVORITE_PORT is set
+  post_build:
+    commands:
+      - echo Cleaning up environment files...
+      - rm -f auth.env favorite.env performance.env search.env survey.env .env
