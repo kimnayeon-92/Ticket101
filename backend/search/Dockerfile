@@ -1,6 +1,6 @@
 FROM node:18-alpine
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
 # 패키지 파일 복사 및 의존성 설치
 COPY package.json ./
