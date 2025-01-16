@@ -6,40 +6,55 @@ phases:
       - echo "Logging in to Amazon ECR..."
       - aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com
       - echo "Downloading Kubernetes manifests from S3..."
-      - aws s3 cp s3://ticket101-env-files/k8s/auth/auth-deployment.yaml ./auth-deployment.yaml
-      - aws s3 cp s3://ticket101-env-files/k8s/auth/auth-service.yaml ./auth-service.yaml
-      - aws s3 cp s3://ticket101-env-files/k8s/favorite/favorite-deployment.yaml ./favorite-deployment.yaml
-      - aws s3 cp s3://ticket101-env-files/k8s/favorite/favorite-service.yaml ./favorite-service.yaml
-      - aws s3 cp s3://ticket101-env-files/k8s/performance/performance-deployment.yaml ./performance-deployment.yaml
-      - aws s3 cp s3://ticket101-env-files/k8s/performance/performance-service.yaml ./performance-service.yaml
-      - aws s3 cp s3://ticket101-env-files/k8s/search/search-deployment.yaml ./search-deployment.yaml
-      - aws s3 cp s3://ticket101-env-files/k8s/search/search-service.yaml ./search-service.yaml
-      - aws s3 cp s3://ticket101-env-files/k8s/survey/survey-deployment.yaml ./survey-deployment.yaml
-      - aws s3 cp s3://ticket101-env-files/k8s/survey/survey-service.yaml ./survey-service.yaml
+      - aws s3 cp s3://ticket101-env-files/k8s/auth/auth-deployment.yaml ./k8s/auth-deployment.yaml
+      - aws s3 cp s3://ticket101-env-files/k8s/auth/auth-service.yaml ./k8s/auth-service.yaml
+      - aws s3 cp s3://ticket101-env-files/k8s/favorite/favorite-deployment.yaml ./k8s/favorite-deployment.yaml
+      - aws s3 cp s3://ticket101-env-files/k8s/favorite/favorite-service.yaml ./k8s/favorite-service.yaml
+      - aws s3 cp s3://ticket101-env-files/k8s/performance/performance-deployment.yaml ./k8s/performance-deployment.yaml
+      - aws s3 cp s3://ticket101-env-files/k8s/performance/performance-service.yaml ./k8s/performance-service.yaml
+      - aws s3 cp s3://ticket101-env-files/k8s/search/search-deployment.yaml ./k8s/search-deployment.yaml
+      - aws s3 cp s3://ticket101-env-files/k8s/search/search-service.yaml ./k8s/search-service.yaml
+      - aws s3 cp s3://ticket101-env-files/k8s/survey/survey-deployment.yaml ./k8s/survey-deployment.yaml
+      - aws s3 cp s3://ticket101-env-files/k8s/survey/survey-service.yaml ./k8s/survey-service.yaml
 
   build:
     commands:
+      - echo "Building Docker images for all services..."
+      - docker build -t 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/auth:latest -f ./backend/auth/Dockerfile ./backend/auth
+      - docker build -t 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/favorite:latest -f ./backend/favorite/Dockerfile ./backend/favorite
+      - docker build -t 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/performance:latest -f ./backend/performance/Dockerfile ./backend/performance
+      - docker build -t 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/search:latest -f ./backend/search/Dockerfile ./backend/search
+      - docker build -t 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/survey:latest -f ./backend/survey/Dockerfile ./backend/survey
+
+      - echo "Pushing Docker images to ECR..."
+      - docker push 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/auth:latest
+      - docker push 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/favorite:latest
+      - docker push 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/performance:latest
+      - docker push 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/search:latest
+      - docker push 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/survey:latest
+
       - echo "Applying Kubernetes manifests..."
-      - kubectl apply -f ./auth-deployment.yaml
-      - kubectl apply -f ./auth-service.yaml
-      - kubectl apply -f ./favorite-deployment.yaml
-      - kubectl apply -f ./favorite-service.yaml
-      - kubectl apply -f ./performance-deployment.yaml
-      - kubectl apply -f ./performance-service.yaml
-      - kubectl apply -f ./search-deployment.yaml
-      - kubectl apply -f ./search-service.yaml
-      - kubectl apply -f ./survey-deployment.yaml
-      - kubectl apply -f ./survey-service.yaml
+      - kubectl apply -f ./k8s/auth-deployment.yaml
+      - kubectl apply -f ./k8s/auth-service.yaml
+      - kubectl apply -f ./k8s/favorite-deployment.yaml
+      - kubectl apply -f ./k8s/favorite-service.yaml
+      - kubectl apply -f ./k8s/performance-deployment.yaml
+      - kubectl apply -f ./k8s/performance-service.yaml
+      - kubectl apply -f ./k8s/search-deployment.yaml
+      - kubectl apply -f ./k8s/search-service.yaml
+      - kubectl apply -f ./k8s/survey-deployment.yaml
+      - kubectl apply -f ./k8s/survey-service.yaml
 
   post_build:
     commands:
       - echo "Deployment completed. Cleaning up local files..."
-      - rm -f ./auth-deployment.yaml ./auth-service.yaml
-      - rm -f ./favorite-deployment.yaml ./favorite-service.yaml
-      - rm -f ./performance-deployment.yaml ./performance-service.yaml
-      - rm -f ./search-deployment.yaml ./search-service.yaml
-      - rm -f ./survey-deployment.yaml ./survey-service.yaml
+      - rm -f ./k8s/auth-deployment.yaml ./k8s/auth-service.yaml
+      - rm -f ./k8s/favorite-deployment.yaml ./k8s/favorite-service.yaml
+      - rm -f ./k8s/performance-deployment.yaml ./k8s/performance-service.yaml
+      - rm -f ./k8s/search-deployment.yaml ./k8s/search-service.yaml
+      - rm -f ./k8s/survey-deployment.yaml ./k8s/survey-service.yaml
 
 artifacts:
   files:
     - '**/*'
+
