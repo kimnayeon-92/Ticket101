@@ -5,7 +5,6 @@ phases:
     commands:
       - echo "Logging in to Amazon ECR..."
       - aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com
-      - aws ecr create-repository --repository-name ticket101-ecr
       - echo "Downloading Kubernetes manifests from S3..."
       - aws s3 cp s3://ticket101-env-files/k8s/auth/auth-deployment.yaml ./auth-deployment.yaml
       - aws s3 cp s3://ticket101-env-files/k8s/auth/auth-service.yaml ./auth-service.yaml
