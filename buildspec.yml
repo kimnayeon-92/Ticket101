@@ -20,18 +20,18 @@ phases:
   build:
     commands:
       - echo "Building Docker images for all services..."
-      - docker build -t 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/auth:latest -f ./backend/auth/Dockerfile ./backend/auth
-      - docker build -t 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/favorite:latest -f ./backend/favorite/Dockerfile ./backend/favorite
-      - docker build -t 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/performance:latest -f ./backend/performance/Dockerfile ./backend/performance
-      - docker build -t 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/search:latest -f ./backend/search/Dockerfile ./backend/search
-      - docker build -t 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/survey:latest -f ./backend/survey/Dockerfile ./backend/survey
+      - docker build -t 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/auth:latest -f ./backend/auth/Dockerfile ./backend/auth
+      - docker build -t 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/favorite:latest -f ./backend/favorite/Dockerfile ./backend/favorite
+      - docker build -t 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/performance:latest -f ./backend/performance/Dockerfile ./backend/performance
+      - docker build -t 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/search:latest -f ./backend/search/Dockerfile ./backend/search
+      - docker build -t 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/survey:latest -f ./backend/survey/Dockerfile ./backend/survey
 
       - echo "Pushing Docker images to ECR..."
-      - docker push 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/auth:latest
-      - docker push 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/favorite:latest
-      - docker push 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/performance:latest
-      - docker push 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/search:latest
-      - docker push 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/survey:latest
+      - docker push 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/auth:latest
+      - docker push 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/favorite:latest
+      - docker push 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/performance:latest
+      - docker push 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/search:latest
+      - docker push 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/survey:latest
 
       - echo "Applying Kubernetes manifests..."
       - kubectl apply -f ./k8s/auth-deployment.yaml
