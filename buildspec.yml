@@ -19,33 +19,38 @@ phases:
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com
       - echo Pre-build step completed.
-  build:
+ build:
     commands:
-      - echo Building and pushing Docker images to ticket101-ecr...
-
+      - echo Building Docker images...
+      
       - echo Building auth service...
-      - docker build -t ticket101-ecr:auth-latest ./backend/auth
+      - docker build -t ticket101-ecr:auth-latest -f ./backend/auth/Dockerfile ./backend/auth
       - docker tag ticket101-ecr:auth-latest 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:auth-latest
-      - docker push 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:auth-latest
 
       - echo Building favorite service...
-      - docker build -t ticket101-ecr:favorite-latest ./backend/favorite
+      - docker build -t ticket101-ecr:favorite-latest -f ./backend/favorite/Dockerfile ./backend/favorite
       - docker tag ticket101-ecr:favorite-latest 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:favorite-latest
-      - docker push 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:favorite-latest
 
       - echo Building performance service...
-      - docker build -t ticket101-ecr:performance-latest ./backend/performance
+      - docker build -t ticket101-ecr:performance-latest -f ./backend/performance/Dockerfile ./backend/performance
       - docker tag ticket101-ecr:performance-latest 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:performance-latest
-      - docker push 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:performance-latest
 
       - echo Building search service...
-      - docker build -t ticket101-ecr:search-latest ./backend/search
+      - docker build -t ticket101-ecr:search-latest -f ./backend/search/Dockerfile ./backend/search
       - docker tag ticket101-ecr:search-latest 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:search-latest
-      - docker push 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:search-latest
 
       - echo Building survey service...
-      - docker build -t ticket101-ecr:survey-latest ./backend/survey
+      - docker build -t ticket101-ecr:survey-latest -f ./backend/survey/Dockerfile ./backend/survey
       - docker tag ticket101-ecr:survey-latest 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:survey-latest
+
+  post_build:
+    commands:
+      - echo Pushing Docker images to ECR...
+
+      - docker push 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:auth-latest
+      - docker push 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:favorite-latest
+      - docker push 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:performance-latest
+      - docker push 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:search-latest
       - docker push 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:survey-latest
   post_build:
     commands:
