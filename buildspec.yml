@@ -58,15 +58,11 @@ phases:
 
       - echo Applying ConfigMap and Secrets...
       - kubectl apply -f ./k8s/auth-config.yaml
-      - kubectl apply -f ./k8s/auth-secret.yaml
       - kubectl apply -f ./k8s/favorite-config.yaml
-      - kubectl apply -f ./k8s/favorite-secret.yaml
       - kubectl apply -f ./k8s/performance-config.yaml
-      - kubectl apply -f ./k8s/performance-secret.yaml
       - kubectl apply -f ./k8s/search-config.yaml
-      - kubectl apply -f ./k8s/search-secret.yaml
       - kubectl apply -f ./k8s/survey-config.yaml
-      - kubectl apply -f ./k8s/survey-secret.yaml
+
 
       - echo Deploying auth service...
       - kubectl apply -f ./k8s/auth-deployment.yaml
