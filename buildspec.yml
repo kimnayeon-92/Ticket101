@@ -1,37 +1,92 @@
 version: 0.2
 
 phases:
+  install:
+    runtime-versions:
+      docker: 20
+    commands:
+      - echo Installing kubectl...
+      - curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.27.6/2023-10-17/bin/linux/amd64/kubectl
+      - chmod +x ./kubectl
+      - mv ./kubectl /usr/local/bin/kubectl
+      - mkdir -p ~/.kube
+      - echo Setting up kubeconfig for EKS...
+      - aws eks --region ap-northeast-2 update-kubeconfig --name test3
+      - echo Verifying Kubernetes access...
+      - kubectl version --client
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com
+      - echo Pre-build step completed.
   build:
     commands:
-      - echo "Building Docker images for all services..."
-      - docker build -t 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/$ImageNameAuth:latest -f ./backend/auth/Dockerfile ./backend/auth
-      - docker build -t 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/$ImageNameFavorite:latest -f ./backend/favorite/Dockerfile ./backend/favorite
-      - docker build -t 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/$ImageNamePerformance:latest -f ./backend/performance/Dockerfile ./backend/performance
-      - docker build -t 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/$ImageNameSearch:latest -f ./backend/search/Dockerfile ./backend/search
-      - docker build -t 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/$ImageNameSurvey:latest -f ./backend/survey/Dockerfile ./backend/survey
+      - echo Building and pushing Docker images to ticket101-ecr...
 
+      - echo Building auth service...
+      - docker build -t ticket101-ecr:auth-latest ./backend/auth
+      - docker tag ticket101-ecr:auth-latest 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:auth-latest
+      - docker push 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:auth-latest
 
-      - echo "Pushing Docker images to ECR..."
-      - docker push 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/$ImageNameAuth:latest
-      - docker push 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/$ImageNameFavorite:latest
-      - docker push 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/$ImageNamePerformance:latest
-      - docker push 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/$ImageNameSearch:latest
-      - docker push 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/$ImageNameSurvey:latest
+      - echo Building favorite service...
+      - docker build -t ticket101-ecr:favorite-latest ./backend/favorite
+      - docker tag ticket101-ecr:favorite-latest 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:favorite-latest
+      - docker push 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:favorite-latest
 
+      - echo Building performance service...
+      - docker build -t ticket101-ecr:performance-latest ./backend/performance
+      - docker tag ticket101-ecr:performance-latest 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:performance-latest
+      - docker push 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:performance-latest
 
-      - echo "Applying Kubernetes manifests..."
+      - echo Building search service...
+      - docker build -t ticket101-ecr:search-latest ./backend/search
+      - docker tag ticket101-ecr:search-latest 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:search-latest
+      - docker push 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:search-latest
+
+      - echo Building survey service...
+      - docker build -t ticket101-ecr:survey-latest ./backend/survey
+      - docker tag ticket101-ecr:survey-latest 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:survey-latest
+      - docker push 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:survey-latest
+  post_build:
+    commands:
+      - echo Deploying services to EKS...
+
+      - echo Deploying auth service...
+      - sed -i.bak 's#AWS_ECR_URI#205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:auth-latest#g' ./k8s/auth-deployment.yaml
       - kubectl apply -f ./k8s/auth-deployment.yaml
       - kubectl apply -f ./k8s/auth-service.yaml
+
+      - echo Deploying favorite service...
+      - sed -i.bak 's#AWS_ECR_URI#205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:favorite-latest#g' ./k8s/favorite-deployment.yaml
       - kubectl apply -f ./k8s/favorite-deployment.yaml
       - kubectl apply -f ./k8s/favorite-service.yaml
+
+      - echo Deploying performance service...
+      - sed -i.bak 's#AWS_ECR_URI#205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:performance-latest#g' ./k8s/performance-deployment.yaml
       - kubectl apply -f ./k8s/performance-deployment.yaml
       - kubectl apply -f ./k8s/performance-service.yaml
+
+      - echo Deploying search service...
+      - sed -i.bak 's#AWS_ECR_URI#205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:search-latest#g' ./k8s/search-deployment.yaml
       - kubectl apply -f ./k8s/search-deployment.yaml
       - kubectl apply -f ./k8s/search-service.yaml
+
+      - echo Deploying survey service...
+      - sed -i.bak 's#AWS_ECR_URI#205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:survey-latest#g' ./k8s/survey-deployment.yaml
       - kubectl apply -f ./k8s/survey-deployment.yaml
       - kubectl apply -f ./k8s/survey-service.yaml
 
+      - echo Deployment completed on $(date).
 
 artifacts:
   files:
-    - '**/*'
+    - k8s/auth-deployment.yaml
+    - k8s/auth-service.yaml
+    - k8s/favorite-deployment.yaml
+    - k8s/favorite-service.yaml
+    - k8s/performance-deployment.yaml
+    - k8s/performance-service.yaml
+    - k8s/search-deployment.yaml
+    - k8s/search-service.yaml
+    - k8s/survey-deployment.yaml
+    - k8s/survey-service.yaml
