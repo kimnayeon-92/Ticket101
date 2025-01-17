@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: search-deployment
+  labels:
+    app: search
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: search
+  template:
+    metadata:
+      labels:
+        app: search
+    spec:
+      containers:
+      - name: search
+        image: 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:search-latest
+        imagePullPolicy: IfNotPresent
+        
+        ports:
+          - containerPort: 5006
+        
+        envFrom:
+          - configMapRef:
+              name: search-config
+
+
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5006
+          initialDelaySeconds: 5
+          periodSeconds: 10
+
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 5006
+          initialDelaySeconds: 5
+          periodSeconds: 10

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: search-config
+data:
+  SEARCH_TABLE: SearchTable
+  SEARCH_REGION: ap-northeast-2
