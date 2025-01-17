@@ -56,28 +56,35 @@ phases:
     commands:
       - echo Deploying services to EKS...
 
+      - echo Applying ConfigMap and Secrets...
+      - kubectl apply -f ./k8s/auth-config.yaml
+      - kubectl apply -f ./k8s/auth-secret.yaml
+      - kubectl apply -f ./k8s/favorite-config.yaml
+      - kubectl apply -f ./k8s/favorite-secret.yaml
+      - kubectl apply -f ./k8s/performance-config.yaml
+      - kubectl apply -f ./k8s/performance-secret.yaml
+      - kubectl apply -f ./k8s/search-config.yaml
+      - kubectl apply -f ./k8s/search-secret.yaml
+      - kubectl apply -f ./k8s/survey-config.yaml
+      - kubectl apply -f ./k8s/survey-secret.yaml
+
       - echo Deploying auth service...
-      - sed -i.bak 's#AWS_ECR_URI#205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:auth-latest#g' ./k8s/auth-deployment.yaml
       - kubectl apply -f ./k8s/auth-deployment.yaml
       - kubectl apply -f ./k8s/auth-service.yaml
 
       - echo Deploying favorite service...
-      - sed -i.bak 's#AWS_ECR_URI#205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:favorite-latest#g' ./k8s/favorite-deployment.yaml
       - kubectl apply -f ./k8s/favorite-deployment.yaml
       - kubectl apply -f ./k8s/favorite-service.yaml
 
       - echo Deploying performance service...
-      - sed -i.bak 's#AWS_ECR_URI#205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:performance-latest#g' ./k8s/performance-deployment.yaml
       - kubectl apply -f ./k8s/performance-deployment.yaml
       - kubectl apply -f ./k8s/performance-service.yaml
 
       - echo Deploying search service...
-      - sed -i.bak 's#AWS_ECR_URI#205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:search-latest#g' ./k8s/search-deployment.yaml
       - kubectl apply -f ./k8s/search-deployment.yaml
       - kubectl apply -f ./k8s/search-service.yaml
 
       - echo Deploying survey service...
-      - sed -i.bak 's#AWS_ECR_URI#205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:survey-latest#g' ./k8s/survey-deployment.yaml
       - kubectl apply -f ./k8s/survey-deployment.yaml
       - kubectl apply -f ./k8s/survey-service.yaml
 
@@ -87,11 +94,21 @@ artifacts:
   files:
     - k8s/auth-deployment.yaml
     - k8s/auth-service.yaml
+    - k8s/auth-config.yaml
+    - k8s/auth-secret.yaml
     - k8s/favorite-deployment.yaml
     - k8s/favorite-service.yaml
+    - k8s/favorite-config.yaml
+    - k8s/favorite-secret.yaml
     - k8s/performance-deployment.yaml
     - k8s/performance-service.yaml
+    - k8s/performance-config.yaml
+    - k8s/performance-secret.yaml
     - k8s/search-deployment.yaml
     - k8s/search-service.yaml
+    - k8s/search-config.yaml
+    - k8s/search-secret.yaml
     - k8s/survey-deployment.yaml
     - k8s/survey-service.yaml
+    - k8s/survey-config.yaml
+    - k8s/survey-secret.yaml
