@@ -21,10 +21,7 @@ spec:
 
         ports:
           - containerPort: 5004
-        
-        envFrom:
-          - configMapRef:
-              name: favorite-config
+
 
 
         resources:
