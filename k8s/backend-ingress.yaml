@@ -5,7 +5,7 @@ metadata:
   namespace: default
   annotations:
     kubernetes.io/ingress.class: "alb"                     # ALB 사용 설정
-    alb.ingress.kubernetes.io/scheme: "internal"           # 내부 전용 ALB (외부 노출 시 "internet-facing")
+    alb.ingress.kubernetes.io/scheme: "internal""    # 외부 노출용 ALB
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]' # HTTP 트래픽 처리
   labels:
     app: backend-ingress
@@ -14,47 +14,35 @@ spec:
     - host: ticket101.kr
       http:
         paths:
-          - path: /
+          - path: /auth
             pathType: Prefix
             backend:
               service:
                 name: auth-service
                 port:
                   number: 80
-    - host: ticket101.kr
-      http:
-        paths:
-          - path: /
+          - path: /favorite
             pathType: Prefix
             backend:
               service:
                 name: favorite-service
                 port:
                   number: 80
-    - host: ticket101.kr
-      http:
-        paths:
-          - path: /
+          - path: /performance
             pathType: Prefix
             backend:
               service:
                 name: performance-service
                 port:
                   number: 80
-    - host: ticket101.kr
-      http:
-        paths:
-          - path: /
+          - path: /search
             pathType: Prefix
             backend:
               service:
                 name: search-service
                 port:
                   number: 80
-    - host: ticket101.kr
-      http:
-        paths:
-          - path: /
+          - path: /survey
             pathType: Prefix
             backend:
               service:
