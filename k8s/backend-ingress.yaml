@@ -1,0 +1,63 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: backend-ingress
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: "alb"                     # ALB 사용 설정
+    alb.ingress.kubernetes.io/scheme: "internal"           # 내부 전용 ALB (외부 노출 시 "internet-facing")
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]' # HTTP 트래픽 처리
+  labels:
+    app: backend-ingress
+spec:
+  rules:
+    - host: auth.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: auth-service
+                port:
+                  number: 80
+    - host: favorite.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: favorite-service
+                port:
+                  number: 80
+    - host: performance.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: performance-service
+                port:
+                  number: 80
+    - host: search.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: search-service
+                port:
+                  number: 80
+    - host: survey.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: survey-service
+                port:
+                  number: 80
