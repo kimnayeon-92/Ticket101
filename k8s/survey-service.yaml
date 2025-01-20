@@ -10,7 +10,7 @@ metadata:
     app: survey
     environment: production
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: survey
   ports:
