@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: survey-config
-data:
-  SURVEY_TABLE: SurveyTable
-  SURVEY_REGION: ap-northeast-2
