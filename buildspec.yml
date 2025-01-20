@@ -74,6 +74,9 @@ phases:
       - kubectl apply -f ./k8s/survey-deployment.yaml
       - kubectl apply -f ./k8s/survey-service.yaml
 
+      - echo Applying Ingress rules...
+      - kubectl apply -f ./k8s/backend-ingress.yaml
+
       - echo Deployment completed on $(date).
 
 artifacts:
@@ -88,4 +91,5 @@ artifacts:
     - k8s/search-service.yaml
     - k8s/survey-deployment.yaml
     - k8s/survey-service.yaml
+    - k8s/backend-ingress.yaml
     
