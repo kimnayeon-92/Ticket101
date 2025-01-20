@@ -3,17 +3,20 @@ kind: Service
 metadata:
   name: favorite-service
   namespace: default
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "alb"       # ALB를 생성
+    service.beta.kubernetes.io/aws-load-balancer-internal: "true"  # 내부 전용 ALB 설정
   labels:
     app: favorite
     environment: production
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: favorite
   ports:
   - name: http
     protocol: TCP
-    port: 80
-    targetPort: 3000
-    nodePort: 30002
+    port: 80           # 내부 네트워크에서 접근하는 포트
+    targetPort: 3000   # 컨테이너 내부 포트
   externalTrafficPolicy: Local
+
