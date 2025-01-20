@@ -22,9 +22,6 @@ spec:
         image: 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:auth-latest
         ports:
         - containerPort: 5002
-        envFrom:
-        - configMapRef:
-            name: auth-config # ConfigMap 참조
 
         resources:
           requests:
