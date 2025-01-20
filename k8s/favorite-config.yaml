@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: favorite-config
-data:
-  FAVORITE_TABLE: FavoriteTable
-  FAVORITE_REGION: ap-northeast-2
