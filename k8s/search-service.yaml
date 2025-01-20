@@ -10,7 +10,7 @@ metadata:
     app: search
     environment: production
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: search
   ports:
