@@ -54,16 +54,6 @@ phases:
 
   post_build:
     commands:
-      - echo Deploying services to EKS...
-
-      - echo Applying ConfigMap and Secrets...
-      - kubectl apply -f ./k8s/auth-config.yaml
-      - kubectl apply -f ./k8s/favorite-config.yaml
-      - kubectl apply -f ./k8s/performance-config.yaml
-      - kubectl apply -f ./k8s/search-config.yaml
-      - kubectl apply -f ./k8s/survey-config.yaml
-
-
       - echo Deploying auth service...
       - kubectl apply -f ./k8s/auth-deployment.yaml
       - kubectl apply -f ./k8s/auth-service.yaml
@@ -90,17 +80,12 @@ artifacts:
   files:
     - k8s/auth-deployment.yaml
     - k8s/auth-service.yaml
-    - k8s/auth-config.yaml
     - k8s/favorite-deployment.yaml
     - k8s/favorite-service.yaml
-    - k8s/favorite-config.yaml
     - k8s/performance-deployment.yaml
     - k8s/performance-service.yaml
-    - k8s/performance-config.yaml
     - k8s/search-deployment.yaml
     - k8s/search-service.yaml
-    - k8s/search-config.yaml
     - k8s/survey-deployment.yaml
     - k8s/survey-service.yaml
-    - k8s/survey-config.yaml
     
