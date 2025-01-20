@@ -6,7 +6,7 @@ metadata:
   annotations:
     service.beta.kubernetes.io/aws-load-balancer-type: "alb"       # ALB 타입 지정
     service.beta.kubernetes.io/aws-load-balancer-internal: "false" # "true"로 설정하면 내부 전용 ALB
-    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "<Your-Certificate-ARN>" # SSL 인증서 사용 시 추가
+
   labels:
     app: auth
     environment: production
