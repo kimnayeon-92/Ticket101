@@ -3,17 +3,19 @@ kind: Service
 metadata:
   name: survey-service
   namespace: default
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "alb"       # ALB 생성
+    service.beta.kubernetes.io/aws-load-balancer-internal: "true"  # 프라이빗 ALB 설정
   labels:
     app: survey
     environment: production
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: survey
   ports:
   - name: http
     protocol: TCP
-    port: 80
-    targetPort: 3000
-    nodePort: 30005
+    port: 80           # ALB에서 접근하는 포트
+    targetPort: 3000   # 컨테이너 내부 포트
   externalTrafficPolicy: Local
