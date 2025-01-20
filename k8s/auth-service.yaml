@@ -3,17 +3,21 @@ kind: Service
 metadata:
   name: auth-service
   namespace: default
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "alb"       # ALB 타입 지정
+    service.beta.kubernetes.io/aws-load-balancer-internal: "false" # "true"로 설정하면 내부 전용 ALB
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "<Your-Certificate-ARN>" # SSL 인증서 사용 시 추가
   labels:
     app: auth
     environment: production
 spec:
-  type: NodePort # 필요 시 LoadBalancer로 변경 가능
+  type: LoadBalancer
   selector:
     app: auth
   ports:
-  - name: http
-    protocol: TCP
-    port: 80
-    targetPort: 3000
-    nodePort: 30001
-  externalTrafficPolicy: Local # 외부 요청의 소스 IP 유지
+    - name: "http"
+      protocol: TCP
+      port: 80           # 외부에서 접근하는 포트
+      targetPort: 3000   # 컨테이너에서 노출하는 포트
+  externalTrafficPolicy: Local
+
