@@ -11,7 +11,7 @@ metadata:
     app: backend-ingress
 spec:
   rules:
-    - host: auth.example.com
+    - host: auth.ticket101.kr
       http:
         paths:
           - path: /
@@ -21,7 +21,7 @@ spec:
                 name: auth-service
                 port:
                   number: 80
-    - host: favorite.example.com
+    - host: favorite.ticket101.kr
       http:
         paths:
           - path: /
@@ -31,7 +31,7 @@ spec:
                 name: favorite-service
                 port:
                   number: 80
-    - host: performance.example.com
+    - host: performance.ticket101.kr
       http:
         paths:
           - path: /
@@ -41,7 +41,7 @@ spec:
                 name: performance-service
                 port:
                   number: 80
-    - host: search.example.com
+    - host: search.ticket101.kr
       http:
         paths:
           - path: /
@@ -51,7 +51,7 @@ spec:
                 name: search-service
                 port:
                   number: 80
-    - host: survey.example.com
+    - host: survey.ticket101.kr
       http:
         paths:
           - path: /
