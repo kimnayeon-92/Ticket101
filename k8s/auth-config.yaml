@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: auth-config
-data:
-  AUTH_TABLE: AuthTable
-  AUTH_REGION: ap-northeast-2
