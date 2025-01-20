@@ -21,7 +21,7 @@ spec:
       - name: auth
         image: 205930629963.dkr.ecr.ap-northeast-2.amazonaws.com/ticket101-ecr:auth-latest
         ports:
-        - containerPort: 3000
+        - containerPort: 5002
         envFrom:
         - configMapRef:
             name: auth-config # ConfigMap 참조
@@ -36,12 +36,12 @@ spec:
         livenessProbe:
           httpGet:
             path: /health
-            port: 3000
+            port: 5002
           initialDelaySeconds: 5
           periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /ready
-            port: 3000
+            port: 5002
           initialDelaySeconds: 5
           periodSeconds: 10
