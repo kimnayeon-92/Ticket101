@@ -21,10 +21,6 @@ spec:
         
         ports:
           - containerPort: 5003
-        
-        envFrom:
-          - configMapRef:
-              name: survey-config
 
         
         resources:
