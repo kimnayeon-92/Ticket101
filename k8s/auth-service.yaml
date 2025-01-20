@@ -11,7 +11,7 @@ metadata:
     app: auth
     environment: production
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: auth
   ports:
