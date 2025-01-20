@@ -18,5 +18,5 @@ spec:
     protocol: TCP
     port: 80           # 내부 네트워크에서 접근하는 포트
     targetPort: 3000   # 컨테이너 내부 포트
-  externalTrafficPolicy: Local
+
 
