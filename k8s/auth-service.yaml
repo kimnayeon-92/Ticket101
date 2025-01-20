@@ -19,5 +19,4 @@ spec:
       protocol: TCP
       port: 80           # 외부에서 접근하는 포트
       targetPort: 3000   # 컨테이너에서 노출하는 포트
-  externalTrafficPolicy: Local
-
+ 
