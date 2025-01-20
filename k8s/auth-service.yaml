@@ -13,6 +13,6 @@ spec:
   - name: http
     protocol: TCP
     port: 80         # Ingress에서 접근하는 포트
-    targetPort: 3000 # 컨테이너 내부 포트
+    targetPort: 5002 # 컨테이너 내부 포트
 
  
