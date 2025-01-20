@@ -21,10 +21,6 @@ spec:
         
         ports:
           - containerPort: 5005
-        
-        envFrom:
-          - configMapRef:
-              name: performance-config
 
         
         resources:
