@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: performance-config
-data:
-  PERFORMANCE_TABLE: PerformanceTable
-  PERFORMANCE_REGION: ap-northeast-2
