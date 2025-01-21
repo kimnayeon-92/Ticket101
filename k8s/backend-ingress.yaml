@@ -5,7 +5,7 @@ metadata:
   namespace: default
   annotations:
     kubernetes.io/ingress.class: "alb"                     # ALB 사용 설정
-    alb.ingress.kubernetes.io/scheme: "internal""    # 외부 노출용 ALB
+    alb.ingress.kubernetes.io/scheme: "internal"           # 외부 노출용 ALB
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]' # HTTP 트래픽 처리
   labels:
     app: backend-ingress
