@@ -21,9 +21,6 @@ spec:
 
         ports:
           - containerPort: 5004
-
-
-
         resources:
           requests:
             cpu: "250m"
@@ -45,3 +42,9 @@ spec:
             port: 5004
           initialDelaySeconds: 5
           periodSeconds: 10
+        env:
+            - name: FRONTEND_URL
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: FRONTEND_URL
