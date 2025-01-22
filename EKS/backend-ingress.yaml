@@ -4,48 +4,49 @@ metadata:
   name: backend-ingress
   namespace: default
   annotations:
-    kubernetes.io/ingress.class: "alb"                     # ALB 사용 설정
-    alb.ingress.kubernetes.io/scheme: "internal"           # 외부 노출용 ALB
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]' # HTTP 트래픽 처리
+    kubernetes.io/ingress.class: alb                       # ALB 사용 설정
+    alb.ingress.kubernetes.io/scheme: internal            # 내부용 ALB (public 사용 시 'internet-facing')
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]' # HTTP 포트 설정
+    alb.ingress.kubernetes.io/target-type: ip             # Target Group의 Target Type 설정
+
   labels:
     app: backend-ingress
 spec:
   rules:
-    - host: ticket101.kr
-      http:
-        paths:
-          - path: /auth
-            pathType: Prefix
-            backend:
-              service:
-                name: auth-service
-                port:
-                  number: 80
-          - path: /favorite
-            pathType: Prefix
-            backend:
-              service:
-                name: favorite-service
-                port:
-                  number: 80
-          - path: /performance
-            pathType: Prefix
-            backend:
-              service:
-                name: performance-service
-                port:
-                  number: 80
-          - path: /search
-            pathType: Prefix
-            backend:
-              service:
-                name: search-service
-                port:
-                  number: 80
-          - path: /survey
-            pathType: Prefix
-            backend:
-              service:
-                name: survey-service
-                port:
-                  number: 80
+  - http:
+      paths:
+      - path: /auth
+        pathType: Prefix
+        backend:
+          service:
+            name: auth-service
+            port:
+              number: 80
+      - path: /favorite
+        pathType: Prefix
+        backend:
+          service:
+            name: favorite-service
+            port:
+              number: 80
+      - path: /performance
+        pathType: Prefix
+        backend:
+          service:
+            name: performance-service
+            port:
+              number: 80
+      - path: /search
+        pathType: Prefix
+        backend:
+          service:
+            name: search-service
+            port:
+              number: 80
+      - path: /survey
+        pathType: Prefix
+        backend:
+          service:
+            name: survey-service
+            port:
+              number: 80
